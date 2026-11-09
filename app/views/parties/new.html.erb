@@ -1,6 +1,11 @@
 <h1>Join the waitlist of Matsuya</h1>
 
 <%= form_with model: @party do |form| %>
+
+  <% @party.errors.full_messages.each do |message| %>
+    <p><%= message %></p>
+  <% end %>
+
   <%= form.label :name %>
   <%= form.text_field :name, required: true %>
   <%= form.label :email %>

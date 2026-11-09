@@ -27,8 +27,20 @@ class Party
   validates :size, numericality: { only_integer: true, in: 1..10 } # hardcode range
   validates :status, inclusion: { in: STATUSES }
 
+  scope :waiting, -> { where(status: "waiting") }
+
   def to_param
     token
+  end
+
+  def position
+    # Count parties that are waiting, where
+    parties_ahead = Party.waiting.any_of(
+      { :created_at.lt => created_at },
+      { created_at: created_at, :_id.lt => id } # This is very rare in reality cuz they have to be created in the same milliseconds. just a tie breaker
+    ).count
+
+    parties_ahead + 1
   end
 
   # wanted to define AR enum like methods
