@@ -22,7 +22,7 @@ To try the queue, open the app in two different browsers (or one normal and one 
 ### Tests
 
 ```sh
-docker compose --profile e2e run --rm e2e     # Playwright end-to-end tests (own app + database)
+docker compose --profile e2e run --rm e2e     # Playwright end-to-end tests
 docker compose --profile test run --rm test   # RSpec unit tests
 ```
 
@@ -44,7 +44,7 @@ Set in `config/application.rb`. Override them with environment variables in `doc
 ### The pieces
 
 ```
- browser ──HTTP──▶  web (Rails, SSR)  ──▶  MongoDB  ◀──  scheduler (rake waitlist:tick_forever)
+ browser ──HTTP──▶  web (Rails)  ──▶  MongoDB  ◀──  scheduler (rake waitlist:tick_forever)
    ▲                                         │                 │
    └── polls status every 3s ◀───────────────┘                 └──▶ Mailpit (table-ready email)
 ```
@@ -56,7 +56,7 @@ Set in `config/application.rb`. Override them with environment variables in `doc
 | `Party` (Mongo document) | One document per party. Its `status` field is the whole queue state. |
 | `mailpit` | Catches the "your table is ready" email locally. |
 
-The frontend is server-rendered ERB with one small vanilla-JS "island" (`app/javascript/application.js`). The island polls the status partial and runs the countdown. There is no SPA and no frontend framework.
+The frontend is server-rendered ERB with one small vanilla-JS  (`app/javascript/application.js`). It polls the status partial and runs the countdown. There is no SPA and no frontend framework.
 
 ### A party's life
 
@@ -82,9 +82,9 @@ waiting ──(Tick: seats free)──▶ ready ──(diner clicks Check in)─
 
 Seats are counted as taken from the moment a party is `ready`, not only once it is `seated`. Otherwise two parties could be told "your table is ready" for the same seats.
 
-The queue is **strict first-in, first-out**: a small party never skips a larger party ahead of it, even if the small party would fit. This keeps the line fair and easy to predict ("you're 3rd" really means 3rd). The cost is some empty seats while the front party waits for room.
+The queue is strict first-in, first-out: a small party never skips a larger party ahead of it (unless two parties are ready and the one in front is just not clicking the check-in button). This keeps the line fair and easy to predict. The cost is some empty seats while the front party waits for room. 
 
-A `ready` party keeps its seats until it checks in. There is deliberately no check-in deadline or no-show handling. The spec doesn't define that policy, and leaving it out keeps the state machine linear.
+A `ready` party keeps its seats until it checks in. There is deliberately no check-in deadline or no-show handling. This is one of the shortcomings of this appliaction, a no-show blcoks the queue. However, adding a no-show status in the state machine would necessitate more careful approach, and I thought I would not have time for that.
 
 ### Check in
 
@@ -105,7 +105,7 @@ index({ email: 1 }, unique: true, partial_filter_expression: { active: true })
 
 ### Concurrency: no overbooking
 
-Joining only **inserts** a `waiting` document. It never claims seats. Only the scheduler claims seats, and there is exactly one scheduler running the steps one after another. So however many people join at once, the seat check is never done by two processes at the same time. That makes overbooking impossible without needing locks or multi-document transactions. (The Mongo in compose runs standalone, without a replica set, so transactions are not available anyway.)
+Joining only **inserts** a `waiting` document. It never claims seats. Only the scheduler claims seats, and there is exactly one scheduler running the steps one after another. So however many people join at once, the seat check is never done by two processes at the same time.
 
 Each party still gets the best experience it can: its place in line is set by `created_at` at insert time. A simultaneous join cannot jump ahead of them.
 
@@ -114,7 +114,7 @@ Each party still gets the best experience it can: its place in line is set by `c
 Each party has a random, unguessable `token`. Their page is `/parties/:token`, and the token is the only key needed to see it.
 
 - **Same browser:** a signed, permanent, `httponly` cookie remembers the token. Visiting `/` takes you back to your party.
-- **Another browser or device:** open the same URL, use the link in the "table ready" email, or join again with the same email. That returns your existing party instead of creating a second one.
+- **Another browser or device:** open the same URL, use the link in the "table ready" email, or join again with the same email. That returns your existing party instead of creating a second one. 
 
 ### Live updates
 
