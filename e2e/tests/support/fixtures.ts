@@ -5,7 +5,7 @@ import { MongoClient } from "mongodb";
 // We clear the e2e database straight from Node, so the Rails app needs no
 // test-only reset endpoint.
 const MONGODB_URI = process.env.MONGODB_URI ?? "mongodb://localhost:27017/wait_in_line_simple_e2e";
-const MAILPIT_URL = process.env.MAILPIT_URL ?? "http://localhost:8025";
+export const MAILPIT_URL = process.env.MAILPIT_URL ?? "http://localhost:8025";
 
 export async function resetWaitlist() {
   const client = new MongoClient(MONGODB_URI);
