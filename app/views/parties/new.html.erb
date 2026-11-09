@@ -2,10 +2,10 @@
 
 <%= form_with model: @party do |form| %>
   <%= form.label :name %>
-  <%= form.text_field :name %>
+  <%= form.text_field :name, required: true %>
   <%= form.label :email %>
-  <%= form.email_field :email %>
+  <%= form.email_field :email, required: true %>
   <%= form.label :size %>
-  <%= form.number_field :size, in: 1..10 %>
-  <%= form.submit %>
+  <%= form.number_field :size, in: 1..10, required: true %>
+  <%= form.submit "Join the queue" %>
 <% end %>
