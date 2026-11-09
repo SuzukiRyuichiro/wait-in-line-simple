@@ -39,4 +39,4 @@ end
 
 gem "mongoid", "~> 9.1"
 
-gem "rspec-rails", "~> 8.1", groups: [:development, :test]
+gem "rspec-rails", "~> 8.1", groups: [ :development, :test ]

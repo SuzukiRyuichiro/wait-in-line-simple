@@ -28,6 +28,8 @@ class Party
   validates :status, inclusion: { in: STATUSES }
 
   scope :waiting, -> { where(status: "waiting") }
+  scope :seated, -> { where(status: "seated") }
+  scope :in_line_order, -> { order_by(created_at: :asc, _id: :asc) } # rare case but ID is just a tie breaker
 
   def to_param
     token

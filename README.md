@@ -1,24 +1,4 @@
-# README
+notes
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+1. I remembered the gem AASM we used to use in Section L. Won't use it here but perhaps using that would make the state management slightly easier
+2.
