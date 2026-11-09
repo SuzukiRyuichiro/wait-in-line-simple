@@ -4,10 +4,17 @@ class PartiesController < ApplicationController
   end
 
   def create
-    @party = Party.new(party_params)
-    @party.save
+    result = Waitlist::Join.call(party_params)
 
-    redirect_to party_path(@party)
+    case result.status
+    when :invalid
+      @party = result.party
+      render :new, status: :unprocessable_content
+    when :duplicate
+      redirect_to party_path(result.party), notice: "You are already in the queue", status: :see_other
+    else
+      redirect_to party_path(result.party), status: :see_other
+    end
   end
 
   def show

@@ -11,7 +11,6 @@ class Party
   field :status, type: String, default: "waiting"
   field :active, type: Mongoid::Boolean, default: true
   field :token, type: String, default: -> { SecureRandom.urlsafe_base64(16) }
-  field :seated_at, type: String
   field :service_ends_at, type: Time
   field :seated_at, type: Time
 
