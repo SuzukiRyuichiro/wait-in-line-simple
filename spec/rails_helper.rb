@@ -20,7 +20,7 @@ require 'rspec/rails'
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 RSpec.configure do |config|
   # Remove this line to enable support for ActiveRecord
@@ -54,6 +54,13 @@ RSpec.configure do |config|
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
+
+  # The unique email index is part of the behaviour under test (duplicate joins), so it must exist.
+  config.before(:suite) { Party.create_indexes }
+  # delete_all (not drop) keeps the indexes.
+  config.before { Party.delete_all }
+
+  config.include PartyHelpers
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 end
