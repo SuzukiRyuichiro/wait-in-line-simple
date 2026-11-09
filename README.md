@@ -2,11 +2,9 @@
 
 A virtual waitlist for a fully booked restaurant with 10 seats. Diners join with their name, email and party size. They watch their place in line, check in when their table is ready, and see the meal count down.
 
-Ruby 3.3 · Rails 8.1 (server-rendered) · MongoDB (Mongoid) · vanilla JS · Playwright + RSpec
+Ruby 3.3 · Rails 8.1 · MongoDB · vanilla JS · Playwright + RSpec (used Pico.css for basic styling) 
 
 ## Setup
-
-You only need Docker (with Docker Compose).
 
 ```sh
 docker compose up
