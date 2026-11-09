@@ -4,4 +4,13 @@
 <% if @party.waiting? %>
   <p>You're <strong><%= @party.position.ordinalize %></strong> in line.</p>
   <p>We'll let you know when your table is ready.</p>
+<% elsif @party.ready? %>
+  <p><strong>Your table is ready!</strong></p>
+  <%= button_to "Check in", party_check_in_path(@party) %>
+<% elsif @party.seated? %>
+  <p>Enjoy your meal. Service ends in
+  <span data-ends-at="<%= @party.service_ends_at.iso8601 %>"><%= [(@party.service_ends_at - Time.current).ceil, 0].max %></span> seconds.</p>
+<% elsif @party.completed? %>
+  <p>Thanks for dining with us!</p>
+  <%= link_to "Back to home", root_path %>
 <% end %>

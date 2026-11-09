@@ -24,18 +24,14 @@ module Waitlist
 
     def ready_next_parties
       # Ready parties from the front of the line while they fit.
-      # Seats in use = sum of sizes of ready + seated parties (ready parties hold their seats).
-      # Strict FIFO: stop at the first waiting party that doesn't fit. Nobody behind it
-      # skips ahead, even a smaller party that would fit.
+      # Seats in use = sum of sizes of ready + seated parties (ready parties hold their seats, like reserved seats).
+      # Stop making parties ready at the first waiting party that doesn't fit. Nobody behind it
+      # skips ahead, even a smaller party that would fit (there's technically 3 seats unoccupied in the restaurant
+      # there's a party of 1 2nd in line, but the 1st in line party is 3 people and just haven't pressed check-in)
 
       Party.waiting.in_line_order.each do |party|
-        # seats that are seated + number of people ready
         seats_in_use = Party.in(status: [ "ready", "seated" ]).sum(:size)
-
-        # if the seats in use + party that is ready size is enough
-        # make that party ready
-
-        if seats_in_use + party.size <= 10
+        if seats_in_use + party.size <= Rails.configuration.x.waitlist.capacity
           party.update!(status: "ready")
           notify(party)
         else

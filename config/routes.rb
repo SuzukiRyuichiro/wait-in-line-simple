@@ -11,5 +11,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "parties#new"
-  resources :parties, only: [ :create, :show ], param: :token
+  resources :parties, only: [ :create, :show ], param: :token do
+    resource :check_in, only: :create
+  end
 end

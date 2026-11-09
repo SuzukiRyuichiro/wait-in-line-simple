@@ -19,6 +19,11 @@ class PartiesController < ApplicationController
 
   def show
     @party = Party.find_by(token: params[:token])
+
+    respond_to do |format|
+      format.html
+      format.json { render json: { status: @party.status, position: (@party.position if @party.waiting?) } }
+    end
   end
 
   private

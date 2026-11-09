@@ -37,8 +37,8 @@ module WaitInLineSimple
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Business rules from the assignment. ENV overrides let E2E run faster.
-    config.x.waitlist.capacity = Integer(ENV.fetch("CAPACITY", "10"))
-    config.x.waitlist.service_seconds_per_person = Integer(ENV.fetch("SERVICE_SECONDS_PER_PERSON", "3"))
+    config.x.waitlist.capacity = ENV.fetch("CAPACITY", "10").to_i
+    config.x.waitlist.service_seconds_per_person = ENV.fetch("SERVICE_SECONDS_PER_PERSON", "3").to_i
 
     # Don't generate system test files.
     config.generators.system_tests = nil
