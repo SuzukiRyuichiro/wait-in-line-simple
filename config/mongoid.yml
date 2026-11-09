@@ -1,0 +1,19 @@
+# One URI per environment. Docker Compose sets MONGODB_URI; the localhost
+# fallback is for running Rails on your machine against the compose Mongo.
+development:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI", "mongodb://localhost:27017/wait_in_line_simple_development") %>
+  options:
+    raise_not_found_error: true
+
+test:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGODB_URI", "mongodb://localhost:27017/wait_in_line_simple_test") %>
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1
+  options:
+    raise_not_found_error: true

@@ -1,0 +1,114 @@
+services:
+  mongo:
+    image: mongo:9.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.33
+    ports:
+      - "8025:8025"   # inbox UI → http://localhost:8025
+      - "1025:1025"   # SMTP
+
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/rails
+    environment: &app_env
+      MONGODB_URI: mongodb://mongo:27017/wait_in_line_simple_development
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      APP_HOST: localhost:3000
+      SERVICE_SECONDS_PER_PERSON: "3"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/up"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+
+  # TODO (step 5 in docs/STEPS.local.md): the one process that runs Tick.
+  # scheduler:
+  #   build: .
+  #   command: ["bin/rails", "waitlist:tick_forever"]
+  #   volumes:
+  #     - .:/rails
+  #   environment: *app_env
+  #   depends_on:
+  #     web:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+
+  # ---- E2E: its own app + database, so tests never touch your dev data ----
+  web-e2e:
+    build: .
+    profiles: ["e2e"]
+    volumes:
+      - .:/rails
+      - /rails/tmp   # own tmp/, so its pidfile doesn't clash with `web`
+    environment: &e2e_env
+      <<: *app_env
+      MONGODB_URI: mongodb://mongo:27017/wait_in_line_simple_e2e
+      APP_HOST: web-e2e:3000
+      SERVICE_SECONDS_PER_PERSON: "1"   # faster service so tests don't wait 30s
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/up"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
+
+  # TODO (step 5): scheduler-e2e, same as scheduler but `environment: *e2e_env`.
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.65.0-noble   # must match @playwright/test version
+    profiles: ["e2e"]
+    working_dir: /e2e
+    volumes:
+      - ./e2e:/e2e
+      - /e2e/node_modules   # container's own node_modules, not your Mac's
+    environment:
+      BASE_URL: http://web-e2e:3000
+      MONGODB_URI: mongodb://mongo:27017/wait_in_line_simple_e2e
+      MAILPIT_URL: http://mailpit:8025
+      CI: "1"
+    depends_on:
+      web-e2e:
+        condition: service_healthy
+    command: ["sh", "-c", "npm ci && npx playwright test"]
+
+  # ---- RSpec (unit tests, later) ----
+  test:
+    build: .
+    profiles: ["test"]
+    volumes:
+      - .:/rails
+    environment:
+      RAILS_ENV: test
+      MONGODB_URI: mongodb://mongo:27017/wait_in_line_simple_test
+    depends_on:
+      mongo:
+        condition: service_healthy
+    command: ["bundle", "exec", "rspec"]
+
+volumes:
+  mongo-data:

@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+# Only the web server does setup, so other containers (scheduler, rspec)
+# sharing this image don't repeat it.
+if [ "$1" = "bin/rails" ] && [ "$2" = "server" ]; then
+  rm -f tmp/pids/server.pid           # left behind by an unclean shutdown
+  bin/rails db:mongoid:create_indexes # unique email index etc.
+fi
+
+exec "$@"

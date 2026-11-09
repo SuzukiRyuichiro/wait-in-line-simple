@@ -1,0 +1,12 @@
+{
+  "name": "wait-in-line-simple-e2e",
+  "private": true,
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "^20.17.0",
+    "mongodb": "^6.10.0"
+  }
+}
