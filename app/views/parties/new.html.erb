@@ -1,16 +1,37 @@
-<h1>Join the waitlist of Matsuya</h1>
+<hgroup>
+  <h1>Join the waitlist</h1>
+  <p>Leave your details and we'll email you when your table is ready.</p>
+</hgroup>
 
-<%= form_with model: @party do |form| %>
+<article>
+  <%= form_with model: @party do |form| %>
+    <div class="grid">
+      <div>
+        <%= form.label :name %>
+        <%= form.text_field :name, required: true,
+              aria: { invalid: (true if @party.errors[:name].any?) } %>
+        <% if @party.errors[:name].any? %>
+          <small><%= @party.errors.full_messages_for(:name).to_sentence %></small>
+        <% end %>
+      </div>
 
-  <% @party.errors.full_messages.each do |message| %>
-    <p><%= message %></p>
+      <div>
+        <%= form.label :email %>
+        <%= form.email_field :email, required: true,
+              aria: { invalid: (true if @party.errors[:email].any?) } %>
+        <% if @party.errors[:email].any? %>
+          <small><%= @party.errors.full_messages_for(:email).to_sentence %></small>
+        <% end %>
+      </div>
+    </div>
+
+    <%= form.label :size, "Party size" %>
+    <%= form.number_field :size, in: 1..10, required: true,
+          aria: { invalid: (true if @party.errors[:size].any?) } %>
+    <% if @party.errors[:size].any? %>
+      <small><%= @party.errors.full_messages_for(:size).to_sentence %></small>
+    <% end %>
+
+    <%= form.submit "Join the queue" %>
   <% end %>
-
-  <%= form.label :name %>
-  <%= form.text_field :name, required: true %>
-  <%= form.label :email %>
-  <%= form.email_field :email, required: true %>
-  <%= form.label :size %>
-  <%= form.number_field :size, in: 1..10, required: true %>
-  <%= form.submit "Join the queue" %>
-<% end %>
+</article>

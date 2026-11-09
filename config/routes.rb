@@ -13,5 +13,6 @@ Rails.application.routes.draw do
   root "parties#new"
   resources :parties, only: [ :create, :show ], param: :token do
     resource :check_in, only: :create
+    resource :status, only: :show
   end
 end

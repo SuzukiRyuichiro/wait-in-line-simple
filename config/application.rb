@@ -42,5 +42,8 @@ module WaitInLineSimple
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Don't wrap invalid fields in <div class="field_with_errors">; Pico styles them via aria-invalid instead
+    config.action_view.field_error_proc = proc { |html_tag, _instance| html_tag }
   end
 end

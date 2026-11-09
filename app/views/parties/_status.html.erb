@@ -1,0 +1,18 @@
+<article>
+  <header>Status: <strong><%= party.status.humanize %></strong></header>
+
+  <% if party.waiting? %>
+    <h2>You're <%= party.position.ordinalize %> in line</h2>
+    <p aria-busy="true">We'll let you know when your table is ready.</p>
+  <% elsif party.ready? %>
+    <h2>Your table is ready!</h2>
+    <%= button_to "Check in", party_check_in_path(party) %>
+  <% elsif party.seated? %>
+    <h2>Enjoy your meal</h2>
+    <p>Service ends in
+      <strong data-ends-at="<%= party.service_ends_at.iso8601 %>"><%= [(party.service_ends_at - Time.current).ceil, 0].max %></strong> seconds.</p>
+  <% elsif party.completed? %>
+    <h2>Thanks for dining with us!</h2>
+    <%= link_to "Back to home", root_path, role: "button", class: "secondary" %>
+  <% end %>
+</article>

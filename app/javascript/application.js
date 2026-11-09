@@ -1,15 +1,21 @@
-// Countdown for the party that is currently dining
-const countdown = document.querySelector("[data-ends-at]")
+const tick = () => {
+  const countdown = document.querySelector("[data-ends-at]")
+  if (!countdown) return
 
-if (countdown) {
-  const endsAt = new Date(countdown.dataset.endsAt)
+  const secondsLeft = Math.max(Math.ceil((new Date(countdown.dataset.endsAt) - new Date()) / 1000), 0)
+  countdown.textContent = secondsLeft
+}
 
-  const tick = () => {
-    const secondsLeft = Math.max(Math.ceil((endsAt - new Date()) / 1000), 0)
-    countdown.textContent = secondsLeft
-    if (secondsLeft === 0) clearInterval(timer)
-  }
+setInterval(tick, 1000)
 
-  const timer = setInterval(tick, 1000)
-  tick()
+// Refresh the status block every 3 seconds
+const statusBox = document.querySelector("[data-status-url]")
+
+if (statusBox) {
+  setInterval(async () => {
+    const response = await fetch(statusBox.dataset.statusUrl)
+    if (!response.ok) return
+    statusBox.innerHTML = await response.text()
+    tick()
+  }, 3000)
 }
