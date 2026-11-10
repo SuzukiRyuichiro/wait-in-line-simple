@@ -10,7 +10,7 @@ class CheckInsController < ApplicationController
     when :already_seated
       redirect_to party_path(result.party), notice: "You're already checked in.", status: :see_other
     else
-      redirect_to party_path(result.party), alert: "Table isn't ready to check in.", status: :see_other
+      redirect_to party_path(result.party), notice: "Table isn't ready to check in.", status: :see_other
     end
   end
 end
