@@ -24,7 +24,7 @@ class Party
 
   validates :name, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :size, numericality: { only_integer: true, in: 1..10 } # hardcode range
+  validates :size, numericality: { only_integer: true, in: 1..Rails.configuration.x.waitlist.capacity }
   validates :status, inclusion: { in: STATUSES }
 
   scope :waiting, -> { where(status: "waiting") }
